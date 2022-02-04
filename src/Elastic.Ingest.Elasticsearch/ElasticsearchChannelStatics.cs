@@ -9,18 +9,21 @@ using Elastic.Transport;
 
 namespace Elastic.Ingest.Elasticsearch
 {
+	using System.Text.Json.Serialization;
+
 	internal static class ElasticsearchChannelStatics
 	{
 		public static readonly byte[] LineFeed = { (byte)'\n' };
 
 		public static readonly RequestParameters RequestParams =
-			new() { QueryString = { { "filter_path", "error, items.*.status,items.*.error" } } };
+			new(HttpMethod.GET, true) { QueryString = { { "filter_path", "error, items.*.status,items.*.error" } } };
 
 		public static readonly HashSet<int> RetryStatusCodes = new(new[] { 502, 503, 504, 429 });
 
 		public static readonly JsonSerializerOptions SerializerOptions = new()
 		{
-			IgnoreNullValues = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+			Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
 		};
 	}
 }

@@ -12,6 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
-    <PackageReference Include="Elasticsearch.Net" Version="7.5.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="8.1.0-ci20210302T015459" />
   </ItemGroup>
 </Project>

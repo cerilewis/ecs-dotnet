@@ -1,5 +1,8 @@
 namespace Elasticsearch.Extensions.Logging.Options
 {
+	using System;
+	using Elastic.Transport;
+
 	public class ElasticsearchLoggerOptions
 	{
 		/// <summary>
@@ -60,5 +63,7 @@ namespace Elasticsearch.Extensions.Logging.Options
 		/// 'Production', etc).
 		/// </summary>
 		public string[] Tags { get; set; } = new string[0];
+
+		public Action<IApiCallDetails>? OnRequestCompleted { get; set; }
 	}
 }

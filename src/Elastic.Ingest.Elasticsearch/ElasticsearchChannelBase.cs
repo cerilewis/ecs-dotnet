@@ -27,8 +27,10 @@ namespace Elastic.Ingest.Elasticsearch
 		protected override bool RejectEvent((TEvent, BulkResponseItem) @event) =>
 			@event.Item2.Status < 200 || @event.Item2.Status > 300;
 
-		protected override Task<BulkResponse> Send(ITransport<ITransportConfiguration> transport, IReadOnlyCollection<TEvent> page) =>
-			transport.RequestAsync<BulkResponse>(HttpMethod.POST, "/_bulk",
+		protected override Task<BulkResponse> Send(ITransport<ITransportConfigurationValues> transport, IReadOnlyCollection<TEvent> page) =>
+			transport.RequestAsync<BulkResponse>(
+				HttpMethod.POST,
+				"/_bulk",
 				default,
 				PostData.StreamHandler(page,
 					(b, stream) =>

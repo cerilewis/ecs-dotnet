@@ -19,6 +19,8 @@ using Microsoft.Extensions.Options;
 
 namespace Elasticsearch.Extensions.Logging
 {
+	using Net;
+
 	[ProviderAlias("Elasticsearch")]
 	public class ElasticsearchLoggerProvider : ILoggerProvider, ISupportExternalScope
 	{
@@ -88,18 +90,18 @@ namespace Elasticsearch.Extensions.Logging
 				case ConnectionPoolType.Cloud:
 					if (!string.IsNullOrEmpty(shipTo.ApiKey))
 					{
-						var apiKeyCredentials = new ApiKey(shipTo.ApiKey);
+						var apiKeyCredentials = new ApiKeyAuthenticationCredentials(shipTo.ApiKey);
 						return new CloudConnectionPool(shipTo.CloudId, apiKeyCredentials);
 					}
 
-					var basicAuthCredentials = new BasicAuthentication(shipTo.Username, shipTo.Password);
+					var basicAuthCredentials = new BasicAuthenticationCredentials(shipTo.Username, shipTo.Password);
 					return new CloudConnectionPool(shipTo.CloudId, basicAuthCredentials);
 				default:
 					throw new ArgumentException($"Unrecognised connection pool type '{connectionPool}' specified in the configuration.", nameof(connectionPool));
 			}
 		}
 
-		private static ITransport<ITransportConfiguration> CreateTransport(ElasticsearchLoggerOptions loggerOptions)
+		private static Elastic.Transport.ITransport<ITransportConfigurationValues> CreateTransport(ElasticsearchLoggerOptions loggerOptions)
 		{
 			// TODO: Check if Uri has changed before recreating
 			// TODO: Injectable factory? Or some way of testing.
@@ -107,9 +109,12 @@ namespace Elasticsearch.Extensions.Logging
 			var config = new TransportConfiguration(connectionPool);
 
 			// config = config.Proxy(new Uri("http://localhost:8080"), "", "");
-			// config = config.EnableDebugMode();
+			if (loggerOptions.OnRequestCompleted != null)
+			{
+				config = config.EnableDebugMode(loggerOptions.OnRequestCompleted);
+			}
 
-			var transport = new Transport<TransportConfiguration>(config);
+			var transport = new Elastic.Transport.Transport<TransportConfiguration>(config);
 			return transport;
 		}
 

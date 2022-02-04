@@ -36,11 +36,11 @@ namespace Elasticsearch.Extensions.Logging
 			_scopeProvider = scopeProvider;
 		}
 
-		public IDisposable? BeginScope<TState>(TState state) => _scopeProvider?.Push(state);
+		public IDisposable BeginScope<TState>(TState state) => _scopeProvider?.Push(state) ?? EmptyDisposable.Instance;
 
 		public bool IsEnabled(LogLevel logLevel) => _options.IsEnabled;
 
-		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+		public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
 			Func<TState, Exception, string> formatter
 		)
 		{
@@ -96,7 +96,7 @@ namespace Elasticsearch.Extensions.Logging
 						}
 					}
 
-					var formattedScope = isFormattedLogValues ? scope.ToString() : FormatValue(scope);
+					var formattedScope = (isFormattedLogValues ? scope?.ToString() : FormatValue(scope)) ?? string.Empty;
 					le.Scopes.Add(formattedScope);
 				}, logEvent);
 			}
@@ -275,7 +275,7 @@ namespace Elasticsearch.Extensions.Logging
 			return stringBuilder.ToString();
 		}
 
-		private string FormatValue(object value, int depth = 0)
+		private string FormatValue(object? value, int depth = 0)
 		{
 			switch (value)
 			{
@@ -340,5 +340,11 @@ namespace Elasticsearch.Extensions.Logging
 					stringBuilder.Append(c);
 			}
 		}
+	}
+
+	public class EmptyDisposable : IDisposable
+	{
+		public static IDisposable Instance = new EmptyDisposable();
+		public void Dispose() { }
 	}
 }

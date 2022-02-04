@@ -4,10 +4,11 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Elastic.Transport;
-using Elastic.Transport.Products.Elasticsearch.Failures;
 
 namespace Elastic.Ingest.Elasticsearch.Serialization
 {
+	using Elastic.Transport.Products.Elasticsearch;
+
 	public class BulkResponse : ITransportResponse
 	{
 		[JsonIgnore]
@@ -93,7 +94,7 @@ namespace Elastic.Ingest.Elasticsearch.Serialization
 						break;
 				}
 			}
-			BulkResponseItem r = status == 200
+			var r = status == 200
 				? OkayBulkResponseItem
 				: new BulkResponseItem { Action = action!, Status = status, Error = error };
 
